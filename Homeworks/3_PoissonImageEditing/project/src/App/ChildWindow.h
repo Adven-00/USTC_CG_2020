@@ -1,11 +1,16 @@
 #pragma once
+
 #include <QMainWindow>
+#include <QFileInfo>
+
+#include "ImageWidget.h"
 
 QT_BEGIN_NAMESPACE
 class QImage;
 class QPainter;
 class QRect;
 class ImageWidget;
+class QFileInfo;
 QT_END_NAMESPACE
 
 class ChildWindow :

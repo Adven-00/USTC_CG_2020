@@ -1,7 +1,4 @@
-#include <QtWidgets>
 #include "mainwindow.h"
-#include "ChildWindow.h"
-#include "ImageWidget.h"
 #include <iostream>
 
 using namespace std;
@@ -16,8 +13,9 @@ MainWindow::MainWindow(QWidget* parent)
 	mdi_area_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	setCentralWidget(mdi_area_);
 
-	window_mapper_ = new QSignalMapper(this);
-	connect(window_mapper_, SIGNAL(mapped(QWidget*)), this, SLOT(SetActiveSubWindow(QWidget*)));
+   //window_mapper_ = new QSignalMapper(this);
+   //connect(window_mapper_, SIGNAL(mapped(QWidget*)), this, SLOT(SetActiveSubWindow(QWidget*)));
+   //connect(window_mapper_, &QSignalMapper::mappedWidget, this, &QMainWindow::SetActiveSubWindow);
 
 	CreateActions();
 	CreateMenus();
@@ -123,7 +121,7 @@ void MainWindow::CreateStatusBar()
 
 void MainWindow::Open()
 {
-	QString filename = QFileDialog::getOpenFileName(this);
+	QString filename = QFileDialog::getOpenFileName(this, tr("Open File"), QString(), tr("Images (*.png *.xpm *.jpg)"));
 	if (!filename.isEmpty())
 	{
 		QMdiSubWindow* existing = FindChild(filename);
@@ -157,6 +155,23 @@ void MainWindow::Open()
 void MainWindow::Save()
 {
 	SaveAs();
+}
+
+QMdiSubWindow* MainWindow::FindChild(const QString& filename)
+{
+	QString canonical_filepath = QFileInfo(filename).canonicalFilePath();
+
+	for (int i = 0; i < mdi_area_->subWindowList().size(); i++)
+	{
+		QMdiSubWindow* window = mdi_area_->subWindowList()[i];
+		ChildWindow* child = qobject_cast<ChildWindow*>(window->widget());
+		if (child->current_file() == canonical_filepath)
+		{
+			return window;
+		}
+	}
+
+	return nullptr;
 }
 
 ChildWindow* MainWindow::GetChildWindow() {
@@ -243,20 +258,4 @@ void MainWindow::Paste()
 		return;
 	window->imagewidget_->set_draw_status_to_paste();
 	window->imagewidget_->set_source_window(child_source_);
-}
-
-QMdiSubWindow *MainWindow::FindChild(const QString &filename)
-{
-	QString canonical_filepath = QFileInfo(filename).canonicalFilePath();
-
-	foreach (QMdiSubWindow *window, mdi_area_->subWindowList())
-	{
-		ChildWindow *child = qobject_cast<ChildWindow *>(window->widget());
-		if (child->current_file() == canonical_filepath)
-		{
-			return window;
-		}
-	}
-
-	return 0;
 }

@@ -1,10 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QtWidgets/QMainWindow>
+#include <QtWidgets>
 #include "ui_mainwindow.h"
+#include "ImageWidget.h"
+#include "ChildWindow.h"
 
-class ChildWindow;
 QT_BEGIN_NAMESPACE
 class QAction;
 class QMenu;

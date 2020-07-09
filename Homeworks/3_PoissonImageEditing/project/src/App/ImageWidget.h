@@ -7,7 +7,7 @@ class QImage;
 class QPainter;
 QT_END_NAMESPACE
 
-enum DrawStatus
+enum class DrawStatus
 {
 	kChoose, 
 	kPaste, 

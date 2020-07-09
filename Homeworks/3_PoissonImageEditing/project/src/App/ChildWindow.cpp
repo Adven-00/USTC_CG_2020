@@ -1,6 +1,4 @@
 #include "ChildWindow.h"
-#include "ImageWidget.h"
-
 
 ChildWindow::ChildWindow(void)
 {
@@ -16,5 +14,8 @@ ChildWindow::~ChildWindow(void)
 bool ChildWindow::LoadFile(QString filename)
 {
 	imagewidget_->Open(filename);
+	current_file_ = filename;
+	setWindowTitle(QFileInfo(filename).baseName());
+
 	return true;
 }

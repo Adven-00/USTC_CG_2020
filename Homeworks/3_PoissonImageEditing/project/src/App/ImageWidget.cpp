@@ -13,7 +13,7 @@ ImageWidget::ImageWidget(ChildWindow* relatewindow)
 	image_ = new QImage();
 	image_backup_ = new QImage();
 
-	draw_status_ = kNone;
+	draw_status_ = DrawStatus::kNone;
 	is_choosing_ = false;
 	is_pasting_ = false;
 
@@ -39,12 +39,12 @@ int ImageWidget::ImageHeight()
 
 void ImageWidget::set_draw_status_to_choose()
 {
-	draw_status_ = kChoose;	
+	draw_status_ = DrawStatus::kChoose;
 }
 
 void ImageWidget::set_draw_status_to_paste()
 {
-	draw_status_ = kPaste;
+	draw_status_ = DrawStatus::kPaste;
 }
 
 QImage* ImageWidget::image()
@@ -86,12 +86,12 @@ void ImageWidget::mousePressEvent(QMouseEvent* mouseevent)
 	{
 		switch (draw_status_)
 		{
-		case kChoose:
+		case DrawStatus::kChoose:
 			is_choosing_ = true;
 			point_start_ = point_end_ = mouseevent->pos();
 			break;
 
-		case kPaste:
+		case DrawStatus::kPaste:
 		{
 			is_pasting_ = true;
 
@@ -139,7 +139,7 @@ void ImageWidget::mouseMoveEvent(QMouseEvent* mouseevent)
 {
 	switch (draw_status_)
 	{
-	case kChoose:
+	case DrawStatus::kChoose:
 		// Store point position for rectangle region
 		if (is_choosing_)
 		{
@@ -147,7 +147,7 @@ void ImageWidget::mouseMoveEvent(QMouseEvent* mouseevent)
 		}
 		break;
 
-	case kPaste:
+	case DrawStatus::kPaste:
 		// Paste rectangle region to object image
 		if (is_pasting_)
 		{
@@ -193,19 +193,19 @@ void ImageWidget::mouseReleaseEvent(QMouseEvent* mouseevent)
 {
 	switch (draw_status_)
 	{
-	case kChoose:
+	case DrawStatus::kChoose:
 		if (is_choosing_)
 		{
 			point_end_ = mouseevent->pos();
 			is_choosing_ = false;
-			draw_status_ = kNone;
+			draw_status_ = DrawStatus::kNone;
 		}
 
-	case kPaste:
+	case DrawStatus::kPaste:
 		if (is_pasting_)
 		{
 			is_pasting_ = false;
-			draw_status_ = kNone;
+			draw_status_ = DrawStatus::kNone;
 		}
 
 	default:
