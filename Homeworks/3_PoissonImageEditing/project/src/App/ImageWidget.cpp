@@ -1,9 +1,8 @@
 #include "ImageWidget.h"
+
 #include <QImage>
-#include <QPainter>
-#include <QtWidgets> 
 #include <iostream>
-#include "ChildWindow.h"
+#include <QPainter>
 
 using std::cout;
 using std::endl;
@@ -14,13 +13,12 @@ ImageWidget::ImageWidget(ChildWindow* relatewindow)
 	image_backup_ = new QImage();
 
 	draw_status_ = DrawStatus::kNone;
-	is_choosing_ = false;
-	is_pasting_ = false;
 
 	point_start_ = QPoint(0, 0);
 	point_end_ = QPoint(0, 0);
 
-	source_window_ = NULL;
+	source_window_ = nullptr;
+	image_source_ = nullptr;
 }
 
 ImageWidget::~ImageWidget(void)
@@ -87,14 +85,11 @@ void ImageWidget::mousePressEvent(QMouseEvent* mouseevent)
 		switch (draw_status_)
 		{
 		case DrawStatus::kChoose:
-			is_choosing_ = true;
 			point_start_ = point_end_ = mouseevent->pos();
 			break;
 
 		case DrawStatus::kPaste:
 		{
-			is_pasting_ = true;
-
 			// Start point in object image
 			int xpos = mouseevent->pos().rx();
 			int ypos = mouseevent->pos().ry();
@@ -120,7 +115,8 @@ void ImageWidget::mousePressEvent(QMouseEvent* mouseevent)
 				{
 					for (int j = 0; j < h; j++)
 					{
-						image_->setPixel(xpos + i, ypos + j, source_window_->imagewidget_->image()->pixel(xsourcepos + i, ysourcepos + j));
+						image_->setPixel(xpos + i, ypos + j, 
+							source_window_->imagewidget_->image()->pixel(xsourcepos + i, ysourcepos + j));
 					}
 				}
 			}
@@ -128,9 +124,6 @@ void ImageWidget::mousePressEvent(QMouseEvent* mouseevent)
 
 		update();
 		break;
-
-		default:
-			break;
 		}
 	}
 }
@@ -140,50 +133,43 @@ void ImageWidget::mouseMoveEvent(QMouseEvent* mouseevent)
 	switch (draw_status_)
 	{
 	case DrawStatus::kChoose:
+
 		// Store point position for rectangle region
-		if (is_choosing_)
-		{
-			point_end_ = mouseevent->pos();
-		}
+		point_end_ = mouseevent->pos();
 		break;
 
 	case DrawStatus::kPaste:
 		// Paste rectangle region to object image
-		if (is_pasting_)
-		{
 			// Start point in object image
-			int xpos = mouseevent->pos().rx();
-			int ypos = mouseevent->pos().ry();
+		int xpos = mouseevent->pos().rx();
+		int ypos = mouseevent->pos().ry();
 
-			// Start point in source image
-			int xsourcepos = source_window_->imagewidget_->point_start_.rx();
-			int ysourcepos = source_window_->imagewidget_->point_start_.ry();
+		// Start point in source image
+		int xsourcepos = source_window_->imagewidget_->point_start_.rx();
+		int ysourcepos = source_window_->imagewidget_->point_start_.ry();
 
-			// Width and Height of rectangle region
-			int w = source_window_->imagewidget_->point_end_.rx()
-				- source_window_->imagewidget_->point_start_.rx() + 1;
-			int h = source_window_->imagewidget_->point_end_.ry()
-				- source_window_->imagewidget_->point_start_.ry() + 1;
+		// Width and Height of rectangle region
+		int w = source_window_->imagewidget_->point_end_.rx()
+			- source_window_->imagewidget_->point_start_.rx() + 1;
+		int h = source_window_->imagewidget_->point_end_.ry()
+			- source_window_->imagewidget_->point_start_.ry() + 1;
+
+		// Paste
+		if ((xpos > 0) && (ypos > 0) && (xpos + w < image_->width()) && (ypos + h < image_->height()))
+		{
+			// Restore image 
+			*(image_) = *(image_backup_);
 
 			// Paste
-			if ((xpos > 0) && (ypos > 0) && (xpos + w < image_->width()) && (ypos + h < image_->height()))
+			for (int i = 0; i < w; i++)
 			{
-				// Restore image 
-				*(image_) = *(image_backup_);
-
-				// Paste
-				for (int i = 0; i < w; i++)
+				for (int j = 0; j < h; j++)
 				{
-					for (int j = 0; j < h; j++)
-					{
-						image_->setPixel(xpos + i, ypos + j, source_window_->imagewidget_->image()->pixel(xsourcepos + i, ysourcepos + j));
-					}
+					image_->setPixel(xpos + i, ypos + j, 
+						source_window_->imagewidget_->image()->pixel(xsourcepos + i, ysourcepos + j));
 				}
 			}
 		}
-
-	default:
-		break;
 	}
 
 	update();
@@ -194,22 +180,23 @@ void ImageWidget::mouseReleaseEvent(QMouseEvent* mouseevent)
 	switch (draw_status_)
 	{
 	case DrawStatus::kChoose:
-		if (is_choosing_)
-		{
-			point_end_ = mouseevent->pos();
-			is_choosing_ = false;
-			draw_status_ = DrawStatus::kNone;
-		}
+	{
+		point_end_ = mouseevent->pos();
+		draw_status_ = DrawStatus::kNone;
+
+		int h = point_start_.y() - point_end_.y();
+		int w = point_start_.x() - point_end_.x();
+		image_source_ = new QImage(w, h, QImage::Format_RGB888);
+
+		for (int i = 0; i < w; i++)
+			for (int j = 0; j < h; j++)
+				image_source_->setPixel(i, j, image_->pixel(point_start_ + QPoint(i, j));
+	}
 
 	case DrawStatus::kPaste:
-		if (is_pasting_)
-		{
-			is_pasting_ = false;
-			draw_status_ = DrawStatus::kNone;
-		}
-
-	default:
-		break;
+	{
+		draw_status_ = DrawStatus::kNone;
+	}
 	}
 
 	update();
@@ -337,4 +324,22 @@ void ImageWidget::Restore()
 	*(image_) = *(image_backup_);
 	point_start_ = point_end_ = QPoint(0, 0);
 	update();
+}
+
+QImage ImageWidget::Mat2QImage(cv::Mat& mat)
+{
+	cv::cvtColor(mat, mat, cv::COLOR_BGR2RGB);
+	QImage qim((const unsigned char*)mat.data, mat.cols, mat.rows, mat.step, QImage::Format_RGB888);
+	return qim;
+}
+
+cv::Mat ImageWidget::QImage2Mat(QImage& qim, int height, int width)
+{
+	cv::Mat mat;
+	if (height == -1 && width == -1)
+		mat = cv::Mat(qim.height(), qim.width(), CV_8UC3, (void*)qim.constBits(), qim.bytesPerLine());
+	else
+		mat = cv::Mat(height, width, CV_8UC3, (void*)qim.constBits(), qim.bytesPerLine());
+
+	return mat;
 }

@@ -28,7 +28,7 @@ void ImageWidget::paintEvent(QPaintEvent *paintevent)
 	painter.drawRect(back_rect);
 
 	// Draw image
-	QImage image_show = QImage( (unsigned char *)(image_mat_.data), image_mat_.cols, image_mat_.rows, image_mat_.step, QImage::Format_RGB888 );
+	QImage image_show = QImage((unsigned char *)(image_mat_.data), image_mat_.cols, image_mat_.rows, image_mat_.step, QImage::Format_RGB888);
 	QRect rect = QRect(0, 0, image_show.width(), image_show.height());
 	painter.drawImage(rect, image_show);
 
@@ -43,11 +43,10 @@ void ImageWidget::Open()
 	// Load file
 	if (!fileName.isEmpty())
 	{
-		image_mat_ = cv::imread( fileName.toLatin1().data() );
-		cv::cvtColor( image_mat_, image_mat_, cv::COLOR_BGR2RGB );
+		image_mat_ = cv::imread(fileName.toLatin1().data());
+		cv::cvtColor(image_mat_, image_mat_, cv::COLOR_BGR2RGB);
 		image_mat_backup_ = image_mat_.clone();
 	}
-
 	update();
 }
 

@@ -1,5 +1,11 @@
 #pragma once
 #include <QWidget>
+#include <QtWidgets> 
+
+#include "ChildWindow.h"
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core/core.hpp>
 
 class ChildWindow;
 QT_BEGIN_NAMESPACE
@@ -55,13 +61,15 @@ public:
 private:
 	QImage						*image_;						// image 
 	QImage						*image_backup_;
+	QImage                      *image_source_;
 
 	// Pointer of child window
 	ChildWindow					*source_window_;				// Source child window
 
 	// Signs
-	DrawStatus					draw_status_;					// Enum type of draw status
-	bool						is_choosing_;
-	bool						is_pasting_;
+	DrawStatus					draw_status_;					// Enum type of draw status  
+
+	QImage Mat2QImage(cv::Mat &mat);
+	cv::Mat QImage2Mat(QImage& qim, int height = -1, int width = -1);
 };
 

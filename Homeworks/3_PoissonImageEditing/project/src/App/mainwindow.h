@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QtWidgets>
+#include <iostream>
+
 #include "ui_mainwindow.h"
 #include "ImageWidget.h"
 #include "ChildWindow.h"
@@ -38,7 +40,7 @@ private slots:
 	void Restore();								// Restore image to origin
 
 	// Poisson Image Editing
-	void ChooseRect();							// Choose rectangle region
+	void choose();							    // Choose rectangle region
 	void Paste();								// Paste rect region to object image
 
 private:
@@ -68,7 +70,7 @@ private:
 	QAction						*action_gray_;
 	QAction						*action_restore_;
 
-	QAction						*action_choose_polygon_;
+	QAction						*action_choose_;
 	QAction						*action_copy_;
 	QAction						*action_paste_;
 

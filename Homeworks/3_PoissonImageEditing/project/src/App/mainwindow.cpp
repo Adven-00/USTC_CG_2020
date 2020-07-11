@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-#include <iostream>
 
 using namespace std;
 
@@ -68,8 +67,8 @@ void MainWindow::CreateActions()
 	connect(action_restore_, SIGNAL(triggered()), this, SLOT(Restore()));
 
 	// Poisson image editting
-	action_choose_polygon_ = new QAction(tr("RectChoose"), this);
-	connect(action_choose_polygon_, SIGNAL(triggered()), this, SLOT(ChooseRect()));
+	action_choose_ = new QAction(tr("Choose"), this);
+	connect(action_choose_, SIGNAL(triggered()), this, SLOT(choose()));
 
 	action_paste_ = new QAction(tr("Paste"), this);
 	connect(action_paste_, SIGNAL(triggered()), this, SLOT(Paste()));
@@ -110,7 +109,7 @@ void MainWindow::CreateToolBars()
 
 	// Poisson Image Editing
 	toolbar_file_->addSeparator();
-	toolbar_file_->addAction(action_choose_polygon_);
+	toolbar_file_->addAction(action_choose_);
 	toolbar_file_->addAction(action_paste_);
 }
 
@@ -193,7 +192,7 @@ void MainWindow::SaveAs()
 ChildWindow* MainWindow::CreateChildWindow()
 {
 	ChildWindow* child = new ChildWindow;
-	mdi_area_->addSubWindow(child);
+	mdi_area_->addSubWindow(child);	//Upcasting
 
 	return child;
 }
@@ -240,7 +239,7 @@ void MainWindow::Restore()
 	window->imagewidget_->Restore();
 }
 
-void MainWindow::ChooseRect()
+void MainWindow::choose()
 {
 	// Set source child window
 	ChildWindow* window = GetChildWindow();
